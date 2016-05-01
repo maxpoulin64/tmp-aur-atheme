@@ -3,9 +3,9 @@ Description=Xtheme IRC services
 
 [Service]
 Type=simple
-User=xtheme
-Group=xtheme
-ExecStart=/usr/bin/xtheme-services -n -p /var/lib/xtheme/pid
+User=atheme
+Group=atheme
+ExecStart=/usr/bin/atheme-services -n -p /var/lib/atheme/pid
 Restart=always
 
 [Install]

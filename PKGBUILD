@@ -8,13 +8,13 @@ _contrib=default
 _cracklib=default
 _ldap=default
 
-pkgname=xtheme
-pkgver=7.3.5
+pkgname=atheme
+pkgver=7.2.6
 pkgrel=1
-pkgdesc="A fork of the atheme IRC services"
+pkgdesc="Atheme IRC services"
 arch=("i686" "x86_64")
-url="http://www.xtheme.org/Xtheme/"
-license='MIT'
+url="http://www.atheme.org/atheme/"
+license=('MIT')
 depends=('bash')
 conflicts=('libmowgli' 'atheme')
 optdepends=(
@@ -24,25 +24,26 @@ optdepends=(
 	'libldap: LDAP support'
 )
 backup=(
-	'etc/xtheme/xtheme.conf'
-	'etc/xtheme/xtheme.motd'
+	'etc/atheme/atheme.conf'
+	'etc/atheme/atheme.motd'
 )
-install=xtheme.install
+install=atheme.install
 source=(
-	"https://github.com/XthemeOrg/Xtheme/releases/download/$pkgver/Xtheme-$pkgver.tar.bz2"
+	"atheme::git+https://github.com/atheme/atheme.git#tag=atheme-$pkgver"
 	"system.service"
 )
-md5sums=(
-	"f896153d6fbcc2100bfe73ac07ec4305"
-	"SKIP"
-)
+md5sums=("SKIP" "SKIP")
+
+prepare() {
+	cd "$srcdir/atheme"
+	git submodule update --init
+}
 
 build() {
-	cd "Xtheme-$pkgver"
+	cd "$srcdir/atheme"
 	
 	_configure="./configure --prefix=/usr --enable-fhs-paths"
-	_configure+=" --sysconfdir=/etc/xtheme --localstatedir=/var"
-	_configure+=" --with-libmowgli=no"
+	_configure+=" --sysconfdir=/etc/atheme --localstatedir=/var"
 	
 	[[ $_large_network = yes ]] && _configure+=" --enable-large-net"
 	[[ $_contrib = yes ]]       && _configure+=" --enable-contrib"
@@ -54,25 +55,25 @@ build() {
 	[[ $_pcre = yes ]] && _configure+=" --with-pcre"
 	[[ $_pcre = no ]]  && _configure+=" --without-pcre"
 
-	eval $_configure	
+	eval $_configure
 	make
 }
 
 package() {
-	cd "Xtheme-$pkgver"
+	cd "$srcdir/atheme"
 	make DESTDIR="$pkgdir/" install
-	install -Dm0644 "$srcdir/system.service" "$pkgdir/usr/lib/systemd/system/xtheme.service"
+	install -Dm0644 "$srcdir/system.service" "$pkgdir/usr/lib/systemd/system/atheme.service"
 	
 	cd "$pkgdir"
 	rm -r var
-	install -dm755 -o142 -g142 var/lib/xtheme/
+	install -dm755 -o142 -g142 var/lib/atheme/
 	
-	chmod 0755 etc/xtheme/
-	chmod 0644 etc/xtheme/*
-	install -dm755 usr/share/doc/xtheme/config/
-	mv etc/xtheme/xtheme.conf.example etc/xtheme/xtheme.conf
-	mv etc/xtheme/xtheme.conf.operserv-example usr/share/doc/xtheme/config/
-	mv etc/xtheme/xtheme.conf.userserv-example usr/share/doc/xtheme/config/
-	mv etc/xtheme/xtheme.motd.example etc/xtheme/xtheme.motd
-	rm etc/xtheme/xtheme.cron.example
+	chmod 0755 etc/atheme/
+	chmod 0644 etc/atheme/*
+	install -dm755 usr/share/doc/atheme/config/
+	mv etc/atheme/atheme.conf.example etc/atheme/atheme.conf
+	mv etc/atheme/atheme.conf.operserv-example usr/share/doc/atheme/config/
+	mv etc/atheme/atheme.conf.userserv-example usr/share/doc/atheme/config/
+	mv etc/atheme/atheme.motd.example etc/atheme/atheme.motd
+	rm etc/atheme/atheme.cron.example
 }
